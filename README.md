@@ -1,3 +1,5 @@
+<img width="150" height="150" alt="PasteKey" src="https://github.com/user-attachments/assets/7b6b4f39-295b-4fad-91ce-6affcb732733" />
+
 # PasteKey
 
 **Custom text paste shortcuts for macOS.**
