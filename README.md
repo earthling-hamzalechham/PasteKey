@@ -10,6 +10,7 @@ It lives quietly in the menu bar, requires no cloud account, and works system-wi
 
 ![macOS 14+](https://img.shields.io/badge/macOS-14%2B-black) ![Version](https://img.shields.io/badge/version-1.0_beta-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
+<img width="748" height="568" alt="PreviewUI" src="https://github.com/user-attachments/assets/91610087-8ce3-4397-847e-57743777e2c5" />
 ---
 
 ## Why PasteKey
