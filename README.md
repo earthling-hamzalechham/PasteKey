@@ -38,7 +38,7 @@ macOS has built-in text replacement, but it only works in apps that support `NST
 2. Open the DMG and drag PasteKey to your Applications folder
 3. Launch PasteKey from Applications
 
-> **First launch note:** macOS may show a security warning since PasteKey is not notarised yet. Right-click the app → Open → Open to bypass it. This is a one-time step.
+> **First launch note:** macOS may show a security warning since PasteKey is not notarised yet. Go to System Settings > Privacy & Security, scroll down to the "Security" section, and click "Open Anyway" next to the blocked PasteKey app message.
 
 ---
 
