@@ -8,9 +8,11 @@ PasteKey is a lightweight menu bar utility that lets you create keyboard shortcu
 
 It lives quietly in the menu bar, requires no cloud account, and works system-wide in every app on your Mac.
 
-![macOS 14+](https://img.shields.io/badge/macOS-14%2B-black) ![Version](https://img.shields.io/badge/version-1.0_beta-blue) ![License](https://img.shields.io/badge/license-MIT-green)
+![macOS 14+](https://img.shields.io/badge/macOS-14%2B-black) ![Version](https://img.shields.io/badge/version-1.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
-<img width="748" height="568" alt="PreviewUI" src="https://github.com/user-attachments/assets/91610087-8ce3-4397-847e-57743777e2c5" />
+<img width="792" height="612" alt="Screenshot 2026-03-20 at 21 51 06" src="https://github.com/user-attachments/assets/b30cb32c-861a-4290-bed8-ecca146d9272" />
+<img width="735" height="544" alt="Preview2" src="https://github.com/user-attachments/assets/8c0d7cb2-d3b6-4369-b138-dc3cb8b9adba" />
+
 ---
 
 ## Why PasteKey
