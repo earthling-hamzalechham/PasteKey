@@ -10,8 +10,11 @@ It lives quietly in the menu bar, requires no cloud account, and works system-wi
 
 ![macOS 14+](https://img.shields.io/badge/macOS-14%2B-black) ![Version](https://img.shields.io/badge/version-1.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
-<img width="792" height="612" alt="Screenshot 2026-03-20 at 21 51 06" src="https://github.com/user-attachments/assets/b30cb32c-861a-4290-bed8-ecca146d9272" />
-<img width="735" height="544" alt="Preview2" src="https://github.com/user-attachments/assets/8c0d7cb2-d3b6-4369-b138-dc3cb8b9adba" />
+
+<img width="735" height="522" alt="Preview1" src="https://github.com/user-attachments/assets/63d9e929-939d-469a-b2ce-33af29c987a4" />
+<img width="735" height="431" alt="Preview2" src="https://github.com/user-attachments/assets/5572b47e-ccbf-4c60-a4e2-79a7e23e861d" />
+
+
 
 ---
 
