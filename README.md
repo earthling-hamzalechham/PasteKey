@@ -37,7 +37,7 @@ macOS has built-in text replacement, but it only works in apps that support `NST
 ## Installation
 
 ### Option A — Download (recommended for most users)
-1. To download `PasteKey-1.0.dmg` [Click here]([https://github.com/earthling-hamzalechham/PasteKey/releases/latest](https://github.com/earthling-hamzalechham/PasteKey/releases/download/1.0-stable/PasteKey-1.0.dmg)
+1. To download `PasteKey-1.0.dmg` [Click here](https://github.com/earthling-hamzalechham/PasteKey/releases/download/1.0-stable/PasteKey-1.0.dmg)
 2. Open the DMG and drag PasteKey to your Applications folder
 3. Launch PasteKey from Applications
 
