@@ -41,8 +41,8 @@ macOS has built-in text replacement, but it only works in apps that support `NST
 2. Open the DMG and drag PasteKey to your Applications folder
 3. Launch PasteKey from Applications
 
-> **First launch note:** macOS will show a security warning since PasteKey is not notarised. Right-click the app → **Open** → click **Open** in the dialog. This is a one-time step.
-
+> **First launch note:** macOS may show a security warning since PasteKey is not notarised yet. Go to System Settings > Privacy & Security, scroll down to the "Security" section, and click "Open Anyway" next to the blocked PasteKey app message.
+> 
 ### Option B — Build from source
 1. Clone the repository
 2. Open `PasteKey.xcodeproj` in Xcode 15 or later
