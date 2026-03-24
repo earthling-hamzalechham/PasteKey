@@ -92,6 +92,8 @@ PasteKey requires one permission — **Accessibility** — to intercept keyboard
 
 Your clipboard is also fully protected — PasteKey saves and restores whatever you had copied before triggering a shortcut, so nothing is lost.
 
+> **Note:** Do not store sensitive information such as passwords, personal identification numbers, confidential client data, or any credentials as shortcut text. PasteKey is designed for repetitive non-sensitive text — templates, signatures, standard replies, and similar content.
+
 ---
 
 ## Export & Import
