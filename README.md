@@ -1,4 +1,4 @@
-<img width="150" height="150" alt="PasteKey" src="https://github.com/user-attachments/assets/7b6b4f39-295b-4fad-91ce-6affcb732733" />
+<img width="150" height="150" alt="PasteKey Logo" src="https://github.com/user-attachments/assets/7b6b4f39-295b-4fad-91ce-6affcb732733" />
 
 # PasteKey
 **Custom text paste shortcuts for macOS.**
@@ -7,42 +7,56 @@ PasteKey is a lightweight menu bar utility that lets you create keyboard shortcu
 
 It lives quietly in the menu bar, requires no cloud account, and works system-wide in every app on your Mac.
 
-![macOS 14+](https://img.shields.io/badge/macOS-14%2B-black) ![Version](https://img.shields.io/badge/version-1.0-blue) ![License](https://img.shields.io/badge/license-MIT-green)
+![macOS 14+](https://img.shields.io/badge/macOS-14%2B-black) ![Version](https://img.shields.io/badge/version-1.1-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
-<img width="735" height="522" alt="Preview1" src="https://github.com/user-attachments/assets/63d9e929-939d-469a-b2ce-33af29c987a4" />
-<img width="735" height="431" alt="Preview2" src="https://github.com/user-attachments/assets/5572b47e-ccbf-4c60-a4e2-79a7e23e861d" />
+<img width="735" height="522" alt="Main Window Preview" src="https://github.com/user-attachments/assets/63d9e929-939d-469a-b2ce-33af29c987a4" />
+<img width="735" height="431" alt="Menu Bar Popover" src="https://github.com/user-attachments/assets/5572b47e-ccbf-4c60-a4e2-79a7e23e861d" />
 
 ---
 
-## Why PasteKey
+## Why PasteKey?
 
 macOS has built-in text replacement, but it only works in apps that support `NSTextView`, has no keyboard shortcut support, and can't be paused. PasteKey solves all of this with a proper first-class UI and true system-wide interception.
 
 ---
 
+## What's New in 1.1
+- **Dynamic Placeholders:** Add `{variables}` to your snippets. When triggered, a floating panel lets you type in custom values or pick from your recent clipboard history before pasting.
+- **Quick Search:** Instantly filter and find your saved snippets directly from the main window or the menu bar popover.
+
+---
+
 ## Features
 
-- **Unlimited shortcuts** — create as many shortcut–text pairs as you need
-- **Works everywhere** — Slack, Mail, Chrome, Terminal, Figma, any app
-- **Instant paste** — text appears at the cursor with no delay
-- **Clipboard safe** — your clipboard contents are preserved after every paste
-- **Pause & resume** — suspend all shortcuts with one click when needed
-- **Fully private** — no cloud, no analytics, no account, all data stays on your Mac
-- **Export & import** — back up or share your shortcuts as a `.pastekey` file
-- **Launch at login** — optionally start PasteKey automatically on login
-- **Native macOS design** — frosted glass, SF Symbols, Dark Mode, Dynamic Type
+- **Unlimited shortcuts** — create as many shortcut–text pairs as you need.
+- **Dynamic Placeholders** — use syntax like `{name}` to fill in custom details on the fly.
+- **Works everywhere** — Slack, Mail, Chrome, Terminal, Figma, any app.
+- **Instant paste** — text appears at the cursor with no delay.
+- **Clipboard safe** — your clipboard contents are completely preserved after every paste.
+- **Pause & resume** — suspend all shortcuts with one click when needed.
+- **Fully private** — no cloud, no analytics, no account, all data stays on your Mac.
+- **Export & import** — back up or share your shortcuts as a `.pastekey` file.
+- **Native macOS design** — frosted glass, SF Symbols, Dark Mode, Dynamic Type.
+
+---
+
+## Dynamic Placeholders (Pro Feature)
+
+PasteKey allows you to create flexible templates. If you wrap a word in curly braces (e.g., `Hello {name}, your order for {item} is ready.`), PasteKey will pause before pasting and display a beautiful native input panel over your current app.
+
+You can type the values manually, or use the built-in **Clipboard History Dropdown** to instantly fill a placeholder with text you copied recently.
 
 ---
 
 ## Installation
 
 ### Option A — Download (recommended for most users)
-1. To download `PasteKey-1.0.dmg` [Click here](https://github.com/earthling-hamzalechham/PasteKey/releases/download/1.0-stable/PasteKey-1.0.dmg)
+1. To download `PasteKey-1.1.dmg` [Click here](https://github.com/earthling-hamzalechham/PasteKey/releases/download/1.1-stable/PasteKey-1.1.dmg)
 2. Open the DMG and drag PasteKey to your Applications folder
 3. Launch PasteKey from Applications
 
 > **First launch note:** macOS may show a security warning since PasteKey is not notarised yet. Go to System Settings > Privacy & Security, scroll down to the "Security" section, and click "Open Anyway" next to the blocked PasteKey app message.
-> 
+
 ### Option B — Build from source
 1. Clone the repository
 2. Open `PasteKey.xcodeproj` in Xcode 15 or later
@@ -55,12 +69,12 @@ No external dependencies — the project uses Apple frameworks only.
 
 ## Getting Started
 
-1. On first launch, grant **Accessibility access** when prompted — this is required for system-wide key interception
-2. Click the keyboard icon in your menu bar → **Open Main Window**
-3. Click **+** to create your first shortcut
-4. Press your desired key combo (e.g. `⌘⌥E`)
-5. Type the text you want it to paste
-6. Click **Save** — your shortcut is now active in every app
+1. On first launch, grant **Accessibility access** when prompted — this is required for system-wide key interception.
+2. Click the keyboard icon in your menu bar → **Open Main Window**.
+3. Click **+** to create your first shortcut.
+4. Press your desired key combo (e.g. `⌘⌥E`).
+5. Type the text you want it to paste.
+6. Click **Save** — your shortcut is now active in every app.
 
 ---
 
@@ -78,21 +92,21 @@ To avoid conflicts with normal typing, use at least `⌘` or `⌃` in your combo
 
 ---
 
-## Requirements
-
-- macOS 14 Sonoma or later
-- Apple Silicon or Intel
-- Accessibility permission (guided on first launch)
-
----
-
-## Privacy
+## Privacy & Security
 
 PasteKey requires one permission — **Accessibility** — to intercept keyboard shortcuts system-wide. It uses this exclusively to detect your assigned key combos. It never reads, logs, stores, or transmits your keystrokes or any other data. All shortcut data is stored locally in `UserDefaults` and never leaves your Mac.
 
 Your clipboard is also fully protected — PasteKey saves and restores whatever you had copied before triggering a shortcut, so nothing is lost.
 
 > **Note:** Do not store sensitive information such as passwords, personal identification numbers, confidential client data, or any credentials as shortcut text. PasteKey is designed for repetitive non-sensitive text — templates, signatures, standard replies, and similar content.
+
+**Technical Transparency:**
+- Registers a `CGEventTap` at `.cgSessionEventTap` to intercept `keyDown` events system-wide.
+- On a matching shortcut: writes predefined text to `NSPasteboard`, simulates `Cmd+V` via `CGEvent`, then restores the previous clipboard contents.
+- Listens for Accessibility permission changes via `DistributedNotificationCenter` (`com.apple.accessibility.api`) to start and stop the tap cleanly without freezing.
+- ❌ No network requests — zero outbound connections.
+- ❌ No keylogging — only reacts to shortcuts you explicitly define.
+- ❌ No telemetry or analytics of any kind.
 
 ---
 
@@ -102,38 +116,13 @@ Back up or share your shortcuts via **Settings → Export Shortcuts**. This save
 
 ---
 
-## Security & Technical Notes
-
-> PasteKey was developed with the assistance of [Claude](https://claude.ai) by Anthropic and has been iteratively reviewed and hardened. Full source code is available for inspection.
-
-**How it works:**
-- Registers a `CGEventTap` at `.cgSessionEventTap` to intercept `keyDown` events system-wide
-- On a matching shortcut: writes predefined text to `NSPasteboard`, simulates `Cmd+V` via `CGEvent`, then restores the previous clipboard contents
-- Listens for Accessibility permission changes via `DistributedNotificationCenter` (`com.apple.accessibility.api`) to start and stop the tap cleanly without freezing
-- All shortcuts persisted locally via `UserDefaults` — no file system writes outside the app container, no network calls
-
-**What it does not do:**
-- ❌ No network requests — zero outbound connections
-- ❌ No keylogging — only reacts to shortcuts you explicitly define
-- ❌ No telemetry or analytics of any kind
-- ❌ No data stored outside `UserDefaults` on the local machine
-- ❌ No background daemons or launch agents beyond the menu bar process
-
-**Permission used:**
-
-| Permission | Why |
-|---|---|
-| Accessibility | Required by macOS to intercept keyboard events system-wide via `CGEventTap` |
-
----
-
 ## Built With
 
 - Swift & SwiftUI
-- AppKit (NSStatusItem, NSPopover, NSWindow)
+- AppKit (NSStatusItem, NSPopover, NSWindow, NSPanel)
 - CoreGraphics (CGEventTap for system-wide key interception)
 - ServiceManagement (Launch at Login)
-- Developed with the assistance of [Claude](https://claude.ai) by Anthropic
+- Developed with the assistance of Claude and Gemini AI.
 
 ---
 
