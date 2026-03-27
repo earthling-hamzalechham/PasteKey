@@ -28,7 +28,7 @@ struct AboutView: View {
                     .font(.system(size: 20, weight: .bold))
                     .foregroundStyle(.primary)
 
-                Text("1.0")
+                Text("1.1")
                     .font(.system(size: 13).italic())
                     .foregroundStyle(.secondary)
             }

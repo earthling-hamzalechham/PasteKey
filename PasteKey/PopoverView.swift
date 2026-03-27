@@ -16,12 +16,30 @@ struct PopoverView: View {
 
     @ObservedObject var store: ShortcutStore
     let openMainWindow: () -> Void
+    
+    // MARK: Search State
+    @State private var searchText: String = ""
+
+    private var filteredEntries: [PasteKeyEntry] {
+        if searchText.isEmpty {
+            return store.entries
+        } else {
+            return store.entries.filter {
+                $0.text.localizedCaseInsensitiveContains(searchText)
+            }
+        }
+    }
 
     // MARK: - Body
 
     var body: some View {
         VStack(spacing: 0) {
             headerBar
+            
+            if !store.entries.isEmpty {
+                searchBar
+            }
+            
             Divider()
             shortcutList
             Divider()
@@ -31,20 +49,79 @@ struct PopoverView: View {
         .background(.ultraThinMaterial)
     }
 
-    // MARK: - Header
+    // MARK: - Header & Search
 
-    private var headerBar: some View {
-        HStack {
-            Text("PasteKey")
-                .font(.system(size: 15, weight: .semibold))
-                .foregroundStyle(.primary)
+        private var headerBar: some View {
+            HStack(spacing: 12) {
+                Text("PasteKey")
+                    .font(.system(size: 17, weight: .semibold))
+                    .foregroundStyle(.primary)
 
-            Spacer()
+                // Passive Status Pill
+                HStack(spacing: 6) {
+                    Circle()
+                        .fill(store.isPaused ? Color.orange : Color.green)
+                        .frame(width: 8, height: 8)
+                        .shadow(
+                            color: store.isPaused ? .orange.opacity(0.4) : .green.opacity(0.4),
+                            radius: 2
+                        )
 
-            pauseToggleButton
+                    Text(store.isPaused ? "Paused" : "Running")
+                        .font(.system(size: 11, weight: .medium))
+                        .foregroundStyle(store.isPaused ? .orange : .primary)
+                }
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
+                .background(
+                    Capsule()
+                        .fill(store.isPaused ? Color.orange.opacity(0.1) : Color.primary.opacity(0.05))
+                )
+                .overlay(
+                    Capsule()
+                        .strokeBorder(store.isPaused ? Color.orange.opacity(0.2) : Color.primary.opacity(0.1), lineWidth: 0.5)
+                )
+
+                Spacer()
+
+                // Existing Play/Pause Toggle
+                pauseToggleButton
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
         }
+    
+    private var searchBar: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(.tertiary)
+
+            TextField("Search snippets...", text: $searchText)
+                .textFieldStyle(.plain)
+                .font(.system(size: 12))
+                .disableAutocorrection(true)
+
+            if !searchText.isEmpty {
+                Button {
+                    searchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.tertiary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(Color.primary.opacity(0.05), in: RoundedRectangle(cornerRadius: 6))
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .strokeBorder(Color.primary.opacity(0.08), lineWidth: 0.5)
+        )
         .padding(.horizontal, 16)
-        .padding(.vertical, 12)
+        .padding(.bottom, 12)
     }
 
     private var pauseToggleButton: some View {
@@ -67,12 +144,22 @@ struct PopoverView: View {
         Group {
             if store.entries.isEmpty {
                 emptyState
+            } else if filteredEntries.isEmpty {
+                VStack(spacing: 8) {
+                    Text("No snippets match \"\(searchText)\"")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.secondary)
+                        .multilineTextAlignment(.center)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 32)
+                .padding(.horizontal, 16)
             } else {
                 ScrollView {
                     LazyVStack(spacing: 0) {
-                        ForEach(store.entries) { entry in
+                        ForEach(filteredEntries) { entry in
                             PopoverRowView(entry: entry)
-                            if entry.id != store.entries.last?.id {
+                            if entry.id != filteredEntries.last?.id {
                                 Divider()
                                     .padding(.leading, 16)
                             }
@@ -83,6 +170,8 @@ struct PopoverView: View {
             }
         }
     }
+    
+    // ... rest of PopoverView remains unchanged ...
 
     private var emptyState: some View {
         VStack(spacing: 8) {

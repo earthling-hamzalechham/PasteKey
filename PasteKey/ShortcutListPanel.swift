@@ -18,18 +18,37 @@ struct ShortcutListPanel: View {
     let onNewShortcut: () -> Void
     let onSelectEntry: (PasteKeyEntry) -> Void
 
+    // MARK: Search State
+    
+    @State private var searchText: String = ""
+
+    private var filteredEntries: [PasteKeyEntry] {
+        if searchText.isEmpty {
+            return store.entries
+        } else {
+            return store.entries.filter {
+                $0.text.localizedCaseInsensitiveContains(searchText)
+            }
+        }
+    }
+
     // MARK: - Body
 
     var body: some View {
         VStack(spacing: 0) {
             listHeader
+            
+            if !store.entries.isEmpty {
+                searchBar
+            }
+            
             Divider()
             listContent
         }
         .background(VisualEffectView(material: .sidebar, blendingMode: .behindWindow))
     }
 
-    // MARK: - Header
+    // MARK: - Header & Search
 
     private var listHeader: some View {
         HStack {
@@ -54,26 +73,73 @@ struct ShortcutListPanel: View {
         .padding(.vertical, 10)
     }
 
+    private var searchBar: some View {
+        HStack(spacing: 6) {
+            Image(systemName: "magnifyingglass")
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(.tertiary)
+
+            TextField("Search snippets...", text: $searchText)
+                .textFieldStyle(.plain)
+                .font(.system(size: 12))
+                .disableAutocorrection(true)
+
+            if !searchText.isEmpty {
+                Button {
+                    searchText = ""
+                } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 12))
+                        .foregroundStyle(.tertiary)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.horizontal, 8)
+        .padding(.vertical, 6)
+        .background(Color.primary.opacity(0.05), in: RoundedRectangle(cornerRadius: 6))
+        .overlay(
+            RoundedRectangle(cornerRadius: 6)
+                .strokeBorder(Color.primary.opacity(0.08), lineWidth: 0.5)
+        )
+        .padding(.horizontal, 16)
+        .padding(.bottom, 10)
+    }
+
     // MARK: - List Content
 
     @ViewBuilder
     private var listContent: some View {
         if store.entries.isEmpty {
             EmptyStateView(onNewShortcut: onNewShortcut)
+        } else if filteredEntries.isEmpty {
+            VStack(spacing: 8) {
+                Spacer()
+                Image(systemName: "magnifyingglass")
+                    .font(.system(size: 24))
+                    .foregroundStyle(.tertiary)
+                Text("No snippets match \"\(searchText)\"")
+                    .font(.system(size: 12))
+                    .foregroundStyle(.secondary)
+                    .multilineTextAlignment(.center)
+                    .padding(.horizontal, 20)
+                Spacer()
+            }
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         } else {
             ScrollView {
                 LazyVStack(spacing: 0) {
-                    ForEach(store.entries) { entry in
+                    ForEach(filteredEntries) { entry in
                         ShortcutRowView(
                             entry: entry,
                             isSelected: selectedEntry?.id == entry.id && !isEditing
                         )
-                        .id(entry.id.uuidString + entry.shortcutKey + entry.modifiers.rawValue.description + entry.text)
+                        .id(entry.id) // Optimized ID for performance
                         .onTapGesture {
                             onSelectEntry(entry)
                         }
 
-                        if entry.id != store.entries.last?.id {
+                        if entry.id != filteredEntries.last?.id {
                             Divider()
                                 .padding(.leading, 12)
                         }

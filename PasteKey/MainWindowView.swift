@@ -45,76 +45,85 @@ struct MainWindowView: View {
 
             
             // Custom header
-            HStack(spacing: 10) {
-                Button {
-                    store.togglePause()
-                } label: {
-                    Image(systemName: store.isPaused ? "play.fill" : "pause.fill")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(
-                            !permission.isGranted ? Color.secondary :
-                            store.isPaused ? Color.green : Color.primary
-                        )
-                        .frame(width: 28, height: 28)
-                        .background(.quaternary, in: RoundedRectangle(cornerRadius: 7))
-                }
-                .buttonStyle(.plain)
-                .disabled(!permission.isGranted)
-                .help(
-                    !permission.isGranted ? "Accessibility permission required" :
-                    store.isPaused ? "Resume all shortcuts" : "Pause all shortcuts"
-                )
+                        HStack(spacing: 12) {
+                            // 1. Play/Pause Button
+                            Button {
+                                withAnimation(.spring(duration: 0.2)) {
+                                    store.togglePause()
+                                }
+                            } label: {
+                                Image(systemName: store.isPaused ? "play.fill" : "pause.fill")
+                                    .font(.system(size: 11, weight: .medium))
+                                    .foregroundStyle(
+                                        !permission.isGranted ? Color.secondary :
+                                        store.isPaused ? Color.green : Color.primary
+                                    )
+                                    .frame(width: 28, height: 28)
+                                    .background(.quaternary, in: RoundedRectangle(cornerRadius: 7))
+                            }
+                            .buttonStyle(.plain)
+                            .disabled(!permission.isGranted)
+                            .help(
+                                !permission.isGranted ? "Accessibility permission required" :
+                                store.isPaused ? "Resume all shortcuts" : "Pause all shortcuts"
+                            )
 
-                Text("PasteKey")
-                    .font(.system(size: 15, weight: .semibold))
-                    .foregroundStyle(.primary)
+                            // 2. App Title
+                            Text("PasteKey")
+                                .font(.system(size: 17, weight: .semibold))
+                                .foregroundStyle(.primary)
 
-                HStack(spacing: 4) {
-                    Text("| ")
-                        .font(.system(size: 15))
-                        .foregroundStyle(.tertiary)
+                            // 3. Passive Status Pill
+                            HStack(spacing: 6) {
+                                Circle()
+                                    .fill(!permission.isGranted ? Color.red : (store.isPaused ? Color.orange : Color.green))
+                                    .frame(width: 8, height: 8)
+                                    .shadow(
+                                        color: !permission.isGranted ? .red.opacity(0.4) : (store.isPaused ? .orange.opacity(0.4) : .green.opacity(0.4)),
+                                        radius: 2
+                                    )
 
-                    if !permission.isGranted {
-                        HStack(spacing: 4) {
-                            ProgressView()
-                                .scaleEffect(0.5)
-                                .frame(width: 12, height: 12)
-                            Text(" Waiting for permission")
-                                .font(.system(size: 11).italic())
-                                .foregroundStyle(.orange)
+                                Text(!permission.isGranted ? "Needs Permission" : (store.isPaused ? "Paused" : "Running"))
+                                    .font(.system(size: 11, weight: .medium))
+                                    .foregroundStyle(
+                                        !permission.isGranted ? .red : (store.isPaused ? .orange : .primary)
+                                    )
+                            }
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(
+                                Capsule()
+                                    .fill(!permission.isGranted ? Color.red.opacity(0.1) : (store.isPaused ? Color.orange.opacity(0.1) : Color.primary.opacity(0.05)))
+                            )
+                            .overlay(
+                                Capsule()
+                                    .strokeBorder(!permission.isGranted ? Color.red.opacity(0.2) : (store.isPaused ? Color.orange.opacity(0.2) : Color.primary.opacity(0.1)), lineWidth: 0.5)
+                            )
+
+                            Spacer()
+
+                            // 4. Settings Button
+                            Button {
+                                NotificationCenter.default.post(name: .pasteKeyOpenSettings, object: nil)
+                            } label: {
+                                Image(systemName: "gearshape")
+                                    .font(.system(size: 12, weight: .medium))
+                                    .foregroundStyle(.primary)
+                                    .frame(width: 28, height: 28)
+                                    .background(.quaternary, in: RoundedRectangle(cornerRadius: 7))
+                            }
+                            .buttonStyle(.plain)
+                            .help("Settings")
                         }
-                    } else {
-                        Text(store.isPaused ? "Paused" : "Running")
-                            .font(.system(size: 11).italic())
-                            .foregroundStyle(store.isPaused ? .orange : .green)
-                    }
-                }
-
-                Spacer()
-
-                Button {
-                    NotificationCenter.default.post(name: .pasteKeyOpenSettings, object: nil)
-                } label: {
-                    Image(systemName: "gearshape")
-                        .font(.system(size: 11, weight: .medium))
-                        .foregroundStyle(.primary)
-                        .frame(width: 28, height: 28)
-                        .background(.quaternary, in: RoundedRectangle(cornerRadius: 7))
-                }
-                .buttonStyle(.plain)
-                .help("Settings")
-            }
-            
-
-            .padding(.horizontal, 16)
-            .padding(.vertical, 10)
-            .background(VisualEffectView(material: .titlebar, blendingMode: .behindWindow))
-            .overlay(
-                Rectangle()
-                    .frame(height: 0.5)
-                    .foregroundStyle(Color.primary.opacity(0.1)),
-                alignment: .bottom
-            )
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(VisualEffectView(material: .titlebar, blendingMode: .behindWindow))
+                        .overlay(
+                            Rectangle()
+                                .frame(height: 0.5)
+                                .foregroundStyle(Color.primary.opacity(0.1)),
+                            alignment: .bottom
+                        )
             .onReceive(NotificationCenter.default.publisher(for: .pasteKeyClearSelection)) { _ in
                 selectedEntry = nil
                 isShowingNewShortcut = false

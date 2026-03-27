@@ -177,15 +177,17 @@ final class HotkeyEngine {
             return Unmanaged.passRetained(event)
         }
 
+        guard type == .keyDown else {
+            return Unmanaged.passRetained(event)
+        }
+
         let keyCode = event.getIntegerValueField(.keyboardEventKeycode)
         let relevantMask: UInt64 = 0x100000 | 0x040000 | 0x080000 | 0x020000
         let modifiers = ModifierFlags(rawValue: UInt64(event.flags.rawValue) & relevantMask)
 
         let entries = store.entries
 
-        // Match on keyCode — reliable regardless of modifier or keyboard layout
         guard let match = entries.first(where: {
-            // Match on keyCode if available, otherwise skip
             $0.keyCode != -1 &&
             $0.keyCode == keyCode &&
             modifiersMatch(recorded: $0.modifiers, event: modifiers)
@@ -197,33 +199,120 @@ final class HotkeyEngine {
         event.type = .null
 
         let textToPaste = match.text
+        let usePlaceholders = match.usePlaceholders
+        let placeholderNames = match.placeholderNames
+
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
-            self.paste(text: textToPaste)
+            if usePlaceholders && !placeholderNames.isEmpty {
+                self.showPlaceholderPanel(
+                    text: textToPaste,
+                    placeholders: placeholderNames
+                )
+            } else {
+                self.paste(text: textToPaste)
+            }
         }
 
         return nil
     }
 
-    // MARK: - Paste
+    
+    // MARK: - Placeholder Panel
 
-    private func paste(text: String) {
-        let pasteboard = NSPasteboard.general
+    private var placeholderPanel: PlaceholderPanelWindow?
 
-        // Snapshot all current pasteboard items before overwriting
-        let previousItems = pasteboard.pasteboardItems?.map { item -> NSPasteboardItem in
-            let copy = NSPasteboardItem()
-            for type in item.types {
-                if let data = item.data(forType: type) {
-                    copy.setData(data, forType: type)
+    private func showPlaceholderPanel(text: String, placeholders: [String]) {
+        // Snapshot clipboard before showing panel
+        let previousItems = snapshotClipboard()
+
+        let panel = PlaceholderPanelWindow(
+            placeholders: placeholders,
+            onCommit: { [weak self] values in
+                guard let self = self else { return }
+                // Replace all placeholder occurrences with filled values
+                var resolved = text
+                for (name, value) in values {
+                    // Escape the name so special regex characters don't break the pattern
+                    let safeName = NSRegularExpression.escapedPattern(for: name)
+                    let pattern = #"\{"# + safeName + #"\}"#
+
+                    if let regex = try? NSRegularExpression(
+                        pattern: pattern,
+                        options: .caseInsensitive
+                    ) {
+                        let range = NSRange(resolved.startIndex..., in: resolved)
+                        // Escape the replacement value so $ signs are treated as literals
+                        // e.g. user typing "$100" won't be misread as a regex back-reference
+                        let safeValue = value.replacingOccurrences(of: "\\", with: "\\\\")
+                                             .replacingOccurrences(of: "$", with: "\\$")
+                        resolved = regex.stringByReplacingMatches(
+                            in: resolved,
+                            range: range,
+                            withTemplate: safeValue
+                        )
+                    }
                 }
+                self.pasteAfterPanel(text: resolved, previousItems: previousItems)
+                self.placeholderPanel = nil
+            },
+            onCancel: { [weak self] in
+                // Restore clipboard silently on cancel
+                self?.restoreClipboard(previousItems)
+                self?.placeholderPanel = nil
             }
-            return copy
-        }
+        )
 
-        // Write the shortcut text
+        placeholderPanel = panel
+        panel.presentWithoutActivatingApp()
+    }
+
+    private func pasteAfterPanel(text: String, previousItems: [NSPasteboardItem]?) {
+        // Step 1 — write text to clipboard
+        let pasteboard = NSPasteboard.general
         pasteboard.clearContents()
         pasteboard.setString(text, forType: .string)
         pasteboard.setString(text, forType: .init("public.utf8-plain-text"))
+        pasteboard.setString("ignore", forType: .init("com.pastekey.internal-injection"))
+
+
+        let source = CGEventSource(stateID: .combinedSessionState)
+
+        // Step 2 — hide PasteKey so focus returns to the previous app
+        NSApp.hide(nil)
+
+        // Step 3 — wait for focus to transfer, then post Cmd+V
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.15) {
+            if let cmdVDown = CGEvent(keyboardEventSource: source, virtualKey: 0x09, keyDown: true) {
+                cmdVDown.flags = .maskCommand
+                cmdVDown.post(tap: .cgAnnotatedSessionEventTap)
+            }
+
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.02) {
+                if let cmdVUp = CGEvent(keyboardEventSource: source, virtualKey: 0x09, keyDown: false) {
+                    cmdVUp.flags = .maskCommand
+                    cmdVUp.post(tap: .cgAnnotatedSessionEventTap)
+                }
+
+                // Step 4 — restore clipboard after paste completes
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+                    self.restoreClipboard(previousItems)
+                }
+            }
+        }
+    }
+    
+    
+    // MARK: - Paste
+
+    private func paste(text: String) {
+        let previousItems = snapshotClipboard()
+
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        pasteboard.setString(text, forType: .string)
+        pasteboard.setString(text, forType: .init("public.utf8-plain-text"))
+        pasteboard.setString("ignore", forType: .init("com.pastekey.internal-injection"))
+
 
         let source = CGEventSource(stateID: .combinedSessionState)
 
@@ -239,13 +328,30 @@ final class HotkeyEngine {
             }
         }
 
-        // Restore previous clipboard after a short delay
-        // Long enough for the paste to complete, short enough to feel instant
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-            pasteboard.clearContents()
-            if let items = previousItems, !items.isEmpty {
-                pasteboard.writeObjects(items)
+            self.restoreClipboard(previousItems)
+        }
+    }
+
+    // MARK: - Clipboard Helpers
+
+    private func snapshotClipboard() -> [NSPasteboardItem]? {
+        return NSPasteboard.general.pasteboardItems?.map { item -> NSPasteboardItem in
+            let copy = NSPasteboardItem()
+            for type in item.types {
+                if let data = item.data(forType: type) {
+                    copy.setData(data, forType: type)
+                }
             }
+            return copy
+        }
+    }
+
+    private func restoreClipboard(_ items: [NSPasteboardItem]?) {
+        let pasteboard = NSPasteboard.general
+        pasteboard.clearContents()
+        if let items = items, !items.isEmpty {
+            pasteboard.writeObjects(items)
         }
     }
 

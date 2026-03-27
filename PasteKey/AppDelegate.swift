@@ -43,6 +43,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         // Boot hotkey engine
         hotkeyEngine = HotkeyEngine(store: store)
 
+        // Boot clipboard monitor for placeholder history
+        ClipboardMonitor.shared.startMonitoring()
+
         // Observe accessibility permission — restart engine when granted
         AccessibilityPermission.shared.$isGranted
             .receive(on: DispatchQueue.main)
@@ -94,6 +97,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             object: nil
         )
 
+        // Placeholder Explainer
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(openPlaceholderExplainer),
+            name: NewShortcutPanel.openPlaceholderExplainer,
+            object: nil
+        )
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
             self.openMainWindow()
         }
@@ -101,6 +112,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     func applicationWillTerminate(_ notification: Notification) {
         store?.save()
+        ClipboardMonitor.shared.stopMonitoring()
     }
 
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
@@ -282,6 +294,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         activeChildWindows.removeAll()
         settingsWindowController = nil
         aboutWindowController = nil
+        placeholderExplainerController = nil
         mainWindowController = nil
     }
 
@@ -309,8 +322,32 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         settingsWindowController = NSWindowController(window: window)
         presentOverMainWindow(window)
     }
+    
+    // MARK: - Placeholder Explainer
 
-    // MARK: - Force Restart Engine
+    private var placeholderExplainerController: NSWindowController?
+
+    @objc func openPlaceholderExplainer() {
+        if let existing = placeholderExplainerController {
+            existing.window?.makeKeyAndOrderFront(nil)
+            return
+        }
+
+        let window = NSWindow(
+            contentRect: NSRect(x: 0, y: 0, width: 460, height: 500),
+            styleMask: [.titled, .closable],
+            backing: .buffered,
+            defer: false
+        )
+        window.title = "Dynamic Placeholders"
+        window.contentView = NSHostingView(rootView: PlaceholderExplainerView())
+        window.isReleasedWhenClosed = false
+        window.isMovable = false
+
+        placeholderExplainerController = NSWindowController(window: window)
+        presentOverMainWindow(window)
+        
+    }    // MARK: - Force Restart Engine
 
     @objc private func forceRestartEngine() {
         guard let store = store else { return }

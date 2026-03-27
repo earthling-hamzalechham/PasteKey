@@ -23,7 +23,8 @@ struct NewShortcutPanel: View {
     // MARK: Constants
 
     private let maxTextLength = 5_000
-
+    static let openPlaceholderExplainer = Notification.Name("pasteKeyOpenPlaceholderExplainer")
+    
     // MARK: Form State
     @State private var text: String = ""
     @State private var shortcutKey: String = ""
@@ -32,6 +33,7 @@ struct NewShortcutPanel: View {
     @State private var validationResult: ValidationResult = .valid
     @State private var isReady = false
     @State private var shortcutWasRecorded = false
+    @State private var usePlaceholders: Bool = true
 
 
     // MARK: - Computed
@@ -128,6 +130,7 @@ struct NewShortcutPanel: View {
                 modifiers = []
                 validationResult = .valid
                 shortcutWasRecorded = false
+                usePlaceholders = true
             } else {
                 prefillIfEditing()
                 shortcutWasRecorded = false
@@ -350,7 +353,8 @@ struct NewShortcutPanel: View {
                 Spacer()
                 Text("\(text.count) / \(maxTextLength) characters")
                     .font(.system(size: 11))
-                .foregroundStyle(text.count > maxTextLength ? Color.red : Color(nsColor: .quaternaryLabelColor))            }
+                    .foregroundStyle(text.count > maxTextLength ? Color.red : Color(nsColor: .quaternaryLabelColor))
+            }
 
             if text.count > maxTextLength {
                 HStack(spacing: 6) {
@@ -369,7 +373,50 @@ struct NewShortcutPanel: View {
                 )
                 .transition(.opacity)
             }
+
+            placeholderIndicatorRow
         }
+    }
+
+    // MARK: - Placeholder Indicator Row
+
+    private var placeholderIndicatorRow: some View {
+        let hasPlaceholders = PasteKeyEntry.containsPlaceholders(text)
+
+        return HStack(spacing: 8) {
+            // Checkmark toggle — only interactive when placeholders exist
+            Image(systemName: hasPlaceholders && usePlaceholders
+                  ? "checkmark.circle.fill"
+                  : "circle")
+                .font(.system(size: 13))
+                .foregroundStyle(hasPlaceholders ? Color.accentColor : Color.secondary)
+                .onTapGesture {
+                    guard hasPlaceholders else { return }
+                    togglePlaceholders()
+                }
+
+            Text("Dynamic placeholders")
+                .font(.system(size: 12))
+                .foregroundStyle(hasPlaceholders ? Color.primary : Color.secondary)
+
+            Spacer()
+
+            // Info button — opens explainer
+            Button {
+                NotificationCenter.default.post(
+                    name: NewShortcutPanel.openPlaceholderExplainer,
+                    object: nil
+                )
+            } label: {
+                Image(systemName: "exclamationmark.circle")
+                    .font(.system(size: 13))
+                    .foregroundStyle(Color.secondary)
+            }
+            .buttonStyle(.plain)
+            .help("Learn how dynamic placeholders work")
+        }
+        .padding(.top, 4)
+        .animation(.easeInOut(duration: 0.15), value: hasPlaceholders)
     }
 
     // MARK: - Action Section
@@ -445,6 +492,11 @@ struct NewShortcutPanel: View {
         shortcutKey = entry.shortcutKey
         keyCode = entry.keyCode
         modifiers = entry.modifiers
+        usePlaceholders = entry.usePlaceholders
+    }
+
+    private func togglePlaceholders() {
+        usePlaceholders.toggle()
     }
 
     private func validateShortcut() {
@@ -485,11 +537,12 @@ struct NewShortcutPanel: View {
 
         let entry = PasteKeyEntry(
             id: entryToEdit?.id ?? UUID(),
-            text: text,  // preserve leading/trailing spaces intentionally
+            text: text,
             shortcutKey: shortcutKey,
             keyCode: keyCode,
             modifiers: modifiers,
-            createdAt: entryToEdit?.createdAt ?? Date()
+            createdAt: entryToEdit?.createdAt ?? Date(),
+            usePlaceholders: PasteKeyEntry.containsPlaceholders(text) ? usePlaceholders : false
         )
 
         if isEditing {

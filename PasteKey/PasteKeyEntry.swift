@@ -37,6 +37,7 @@ struct PasteKeyEntry: Identifiable, Codable, Equatable, Hashable {
     var keyCode: Int64
     var modifiers: ModifierFlags
     var createdAt: Date
+    var usePlaceholders: Bool
 
     init(
         id: UUID = UUID(),
@@ -44,7 +45,8 @@ struct PasteKeyEntry: Identifiable, Codable, Equatable, Hashable {
         shortcutKey: String,
         keyCode: Int64 = -1,
         modifiers: ModifierFlags,
-        createdAt: Date = Date()
+        createdAt: Date = Date(),
+        usePlaceholders: Bool? = nil
     )
     {
         self.id = id
@@ -53,9 +55,12 @@ struct PasteKeyEntry: Identifiable, Codable, Equatable, Hashable {
         self.keyCode = keyCode
         self.modifiers = modifiers
         self.createdAt = createdAt
+        // Auto-enable if text contains valid placeholders, unless explicitly set
+        self.usePlaceholders = usePlaceholders ?? PasteKeyEntry.containsPlaceholders(text)
     }
+    
     enum CodingKeys: String, CodingKey {
-        case id, text, shortcutKey, keyCode, modifiers, createdAt
+        case id, text, shortcutKey, keyCode, modifiers, createdAt, usePlaceholders
     }
 
     init(from decoder: Decoder) throws {
@@ -66,6 +71,10 @@ struct PasteKeyEntry: Identifiable, Codable, Equatable, Hashable {
         keyCode = try container.decodeIfPresent(Int64.self, forKey: .keyCode) ?? -1
         modifiers = try container.decode(ModifierFlags.self, forKey: .modifiers)
         createdAt = try container.decode(Date.self, forKey: .createdAt)
+        // Decode if present — older saved entries without this field default to auto-detect
+        let decoded = try container.decodeIfPresent(Bool.self, forKey: .usePlaceholders)
+        let decodedText = try container.decode(String.self, forKey: .text)
+        usePlaceholders = decoded ?? PasteKeyEntry.containsPlaceholders(decodedText)
     }
 
     var displayShortcut: String {
@@ -78,6 +87,37 @@ struct PasteKeyEntry: Identifiable, Codable, Equatable, Hashable {
             .replacingOccurrences(of: "\n", with: " ")
         guard clean.count > 60 else { return clean }
         return String(clean.prefix(60)) + "…"
+    }
+
+    /// Returns all unique placeholder names found in the text, in order of appearance.
+    /// Only matches valid {word} patterns — alphanumeric and underscores only.
+    var placeholderNames: [String] {
+        PasteKeyEntry.extractPlaceholders(from: text)
+    }
+
+    /// True if the text contains at least one valid placeholder pattern.
+    static func containsPlaceholders(_ text: String) -> Bool {
+        !extractPlaceholders(from: text).isEmpty
+    }
+
+    /// Extracts unique placeholder names in order of appearance.
+    /// Valid format: {name} where name is alphanumeric/underscore, 1–30 chars.
+    static func extractPlaceholders(from text: String) -> [String] {
+        let pattern = #"\{([a-zA-Z0-9_]{1,30})\}"#
+        guard let regex = try? NSRegularExpression(pattern: pattern) else { return [] }
+        let range = NSRange(text.startIndex..., in: text)
+        let matches = regex.matches(in: text, range: range)
+        var seen = Set<String>()
+        var result: [String] = []
+        for match in matches {
+            if let range = Range(match.range(at: 1), in: text) {
+                let name = String(text[range]).lowercased()
+                if seen.insert(name).inserted {
+                    result.append(name)
+                }
+            }
+        }
+        return result
     }
 
     static func == (lhs: PasteKeyEntry, rhs: PasteKeyEntry) -> Bool {
