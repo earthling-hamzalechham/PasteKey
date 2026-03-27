@@ -9,8 +9,10 @@ It lives quietly in the menu bar, requires no cloud account, and works system-wi
 
 ![macOS 14+](https://img.shields.io/badge/macOS-14%2B-black) ![Version](https://img.shields.io/badge/version-1.1-blue) ![License](https://img.shields.io/badge/license-MIT-green)
 
-<img width="735" height="522" alt="Main Window Preview" src="https://github.com/user-attachments/assets/63d9e929-939d-469a-b2ce-33af29c987a4" />
-<img width="735" height="431" alt="Menu Bar Popover" src="https://github.com/user-attachments/assets/5572b47e-ccbf-4c60-a4e2-79a7e23e861d" />
+
+<img width="735" height="522" alt="565761881-91610087-8ce3-4397-847e-57743777e2c5" src="https://github.com/user-attachments/assets/ecc9d8c0-d3f4-4317-ad94-f00aac03b2f6" />
+
+<img width="735" height="431" alt="565761881-91610087-8ce3-4397-847e-57743777e2c5" src="https://github.com/user-attachments/assets/724e15dd-5a73-4b36-ac1f-8e17846f7c8a" />
 
 ---
 
@@ -51,7 +53,7 @@ You can type the values manually, or use the built-in **Clipboard History Dropdo
 ## Installation
 
 ### Option A — Download (recommended for most users)
-1. To download `PasteKey-1.1.dmg` [Click here](https://github.com/earthling-hamzalechham/PasteKey/releases/download/1.1-stable/PasteKey-1.1.dmg)
+1. To download `PasteKey-1.1.dmg` [Click here](https://github.com/earthling-hamzalechham/PasteKey/blob/main/PasteKey-1.1.dmg)
 2. Open the DMG and drag PasteKey to your Applications folder
 3. Launch PasteKey from Applications
 
