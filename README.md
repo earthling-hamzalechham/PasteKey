@@ -14,6 +14,9 @@ It lives quietly in the menu bar, requires no cloud account, and works system-wi
 
 <img width="735" height="431" alt="565761881-91610087-8ce3-4397-847e-57743777e2c5" src="https://github.com/user-attachments/assets/724e15dd-5a73-4b36-ac1f-8e17846f7c8a" />
 
+<img width="735" height="522" alt="565761881-91610087-8ce3-4397-847e-57743777e2c5" src="https://github.com/user-attachments/assets/6a5fbb82-4b2a-42c4-ad0c-b8f77bbe8741" />
+
+
 ---
 
 ## Why PasteKey?
